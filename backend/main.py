@@ -2,8 +2,11 @@ from flask import Flask, request, jsonify
 from algorithms.fifo import fifo
 from algorithms.lru import lru
 from algorithms.optimal import optimal
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
+
 
 ALGO_MAP ={
     "FIFO": fifo,
@@ -36,7 +39,7 @@ def run_algorithms():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000,debug=True)
 
 
 

@@ -16,7 +16,7 @@ def fifo(process_id, memory_size, reference_string, frames ):
             if len(memory_set) < frames:
                 memory_set.add(page);
                 memory_queue.put(page);
-            else:
+            else: 
                 # Memory full → remove oldest page
                 oldest = memory_queue.get();
                 memory_set.remove(oldest);
@@ -34,11 +34,6 @@ def fifo(process_id, memory_size, reference_string, frames ):
         "hits":hits,
         "steps":steps
     }
-
-
-
-
-
 
 
 

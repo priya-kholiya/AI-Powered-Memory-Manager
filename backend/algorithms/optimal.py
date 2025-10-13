@@ -43,3 +43,8 @@ def optimal(process_id, memory_size, reference_string, frames):
         "hits": hits,
         "steps": steps
     }
+
+
+
+
+
