@@ -1,0 +1,90 @@
+.tableWrap {
+  overflow: auto;
+  border-radius: 10px;
+  border: 1px solid #1f2a44;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #0f1524;
+  min-width: 760px;
+}
+
+.thead th {
+  position: sticky;
+  top: 0;
+  background: #121829;
+  color: #9fb0d8;
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid #1f2a44;
+  font-size: 13px;
+}
+
+.row td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #1a2440;
+  font-size: 14px;
+  color: #e6eaf2;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #1f2a44;
+  background: #121829;
+  color: #9fb0d8;
+}
+
+.status {
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.statusRunning {
+  color: #8de0a6;
+}
+
+.statusIdle {
+  color: #f2cc60;
+}
+
+.barWrap {
+  height: 10px;
+  width: 140px;
+  background: #0b1020;
+  border: 1px solid #1f2a44;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+.barGreen {
+  background: #19d27c;
+}
+
+.barYellow {
+  background: #f2cc60;
+}
+
+.barRed {
+  background: #ff6b6b;
+}
+
+.metricCell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+

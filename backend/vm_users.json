@@ -1,0 +1,27 @@
+[
+  {
+    "vmId": "ubuntu_vm1",
+    "osName": "Ubuntu",
+    "algorithm": "FIFO",
+    "frames": 10,
+    "users": [
+      {"username": "admin", "password": "admin123", "role": "admin"},
+      {"username": "user1", "password": "userpass1", "role": "user"},
+      {"username": "user2", "password": "userpass2", "role": "user"},
+      {"username": "guest", "password": "guestpass", "role": "guest"}
+    ]
+  },
+  {
+    "vmId": "kali_vm1",
+    "osName": "Kali",
+    "algorithm": "LRU",
+    "frames": 8,
+    "users": [
+      {"username": "kaliadmin", "password": "kalipass", "role": "admin"},
+      {"username": "kaliuser1", "password": "userpass1", "role": "user"},
+      {"username": "kaliuser2", "password": "userpass2", "role": "user"},
+      {"username": "kaliguest", "password": "guestpass", "role": "guest"}
+    ]
+  }
+]
+

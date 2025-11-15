@@ -1,0 +1,15 @@
+.chartCard {
+  background: #0f1524;
+  border: 1px solid #1f2a44;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #cfe0ff;
+  margin-bottom: 12px;
+}
+
+

@@ -1,0 +1,35 @@
+.card {
+  background: linear-gradient(180deg, #141b2e 0%, #0f1524 100%);
+  border: 1px solid #1f2a44;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 12px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #9fb0d8;
+}
+
+.valueRow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #e6eaf2;
+}
+
+.unit {
+  font-size: 12px;
+  color: #9fb0d8;
+}
+
+
