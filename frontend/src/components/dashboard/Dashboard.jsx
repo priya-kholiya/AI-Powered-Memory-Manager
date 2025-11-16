@@ -5,6 +5,7 @@ import VMList from "./VMList";
 import CpuHistoryChart from "./charts/CpuHistoryChart";
 import MemoryUsageChart from "./charts/MemoryUsageChart";
 import OsDistributionChart from "./charts/OsDistributionChart";
+import { Link } from "react-router-dom";
 
 const MOCK_RESPONSE = {
   summary: {
@@ -117,6 +118,13 @@ function Dashboard() {
           unit={`GB / ${data.summary.totalMemoryGB} GB`}
         />
         <StatCard title="Users Logged In" value={data.summary.totalUsers} />
+        <StatCard
+        title="Page Algorithms"
+        value="Open"
+        unit=""
+        link={<Link to="/dashboard/algorithms">Go →</Link>}
+/>
+
       </div>
 
       <div className={styles.panel}>
