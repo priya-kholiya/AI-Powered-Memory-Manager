@@ -1,9 +1,8 @@
 # backend/hypervisor.py
-
 import bcrypt
 import uuid
 import time
-from werkzeug.security import check_password_hash  # supports pbkdf2, scrypt, etc.
+from werkzeug.security import check_password_hash
 
 from algorithms.fifo import fifo
 from algorithms.lru import lru
@@ -15,17 +14,16 @@ ALGO_MAP = {
     "OPTIMAL": optimal
 }
 
+
 class Hypervisor:
     def __init__(self, total_frames=100, db=None):
         self.total_frames = total_frames
         self.db = db
         self.vms = {}
 
-    # ---------- INTERNAL UTIL ----------
     def _allocated_frames(self):
         return sum(vm["frames"] for vm in self.vms.values())
 
-    # ---------- VM MANAGEMENT ----------
     def create_vm(self, vm_id, os_name, algorithm, frames, users):
         if vm_id in self.vms:
             raise ValueError("VM already exists")
@@ -33,7 +31,7 @@ class Hypervisor:
         if self._allocated_frames() + frames > self.total_frames:
             raise ValueError("Not enough frames available")
 
-        # TRUST loader to give password_hash
+        # ensure loader passed password_hash for each user
         for user in users:
             if "password_hash" not in user:
                 raise ValueError("User must contain password_hash")
@@ -49,7 +47,33 @@ class Hypervisor:
 
         return self.vms[vm_id]
 
-    # ---------- VM LOGIN ----------
+    def _check_password_compat(self, stored_hash, password):
+        """
+        Unified password check helper:
+         - If stored_hash looks like werkzeug pbkdf2 (contains 'pbkdf2'), use check_password_hash.
+         - Else try bcrypt (stored as string).
+         - Returns True/False.
+        """
+        if not stored_hash:
+            return False
+
+        # If it's not a string, try to decode bytes
+        if isinstance(stored_hash, bytes):
+            stored_hash = stored_hash.decode()
+
+        try:
+            if isinstance(stored_hash, str) and "pbkdf2" in stored_hash:
+                return check_password_hash(stored_hash, password)
+            else:
+                # assume bcrypt stored hash: bcrypt wants bytes
+                try:
+                    return bcrypt.checkpw(password.encode("utf-8"), stored_hash.encode("utf-8"))
+                except Exception:
+                    # if stored_hash is already bytes
+                    return bcrypt.checkpw(password.encode("utf-8"), stored_hash)
+        except Exception:
+            return False
+
     def login(self, vm_id: str, username: str, password: str):
         vm = self.vms.get(vm_id)
         if not vm:
@@ -57,39 +81,25 @@ class Hypervisor:
 
         for u in vm["users"]:
             if u["username"] == username:
-
-                stored_hash = u["password_hash"]
-
-                # SUPPORT BOTH bcrypt and Werkzeug hashes
-                try:
-                    # Check werkzeug style (pbkdf2:sha256)
-                    if ":" in stored_hash:
-                        valid = check_password_hash(stored_hash, password)
-                    else:
-                        # bcrypt
-                        valid = bcrypt.checkpw(password.encode(), stored_hash.encode())
-                except Exception:
-                    valid = False
-
+                stored_hash = u.get("password_hash")
+                valid = self._check_password_compat(stored_hash, password)
                 if valid:
                     token = str(uuid.uuid4())
                     vm["active_tokens"][token] = {
                         "username": username,
-                        "role": u["role"],
+                        "role": u.get("role"),
                         "login_time": time.time()
                     }
                     return {
                         "token": token,
                         "username": username,
                         "vmId": vm_id,
-                        "role": u["role"]
+                        "role": u.get("role")
                     }
-
                 raise ValueError("Invalid password")
 
         raise ValueError("Invalid username")
 
-    # ---------- VM LOGOUT ----------
     def logout(self, vm_id: str, username: str, token: str):
         vm = self.vms.get(vm_id)
         if not vm:
@@ -104,7 +114,6 @@ class Hypervisor:
         del vm["active_tokens"][token]
         return {"message": "Logout successful", "vmId": vm_id, "username": username}
 
-    # ---------- RUN VM ----------
     def run_vm(self, vm_id, reference_string, user=None):
         vm = self.vms.get(vm_id)
         if not vm:
@@ -122,6 +131,8 @@ class Hypervisor:
 
         algo = vm["algorithm"]
         func = ALGO_MAP.get(algo)
+        if not func:
+            raise ValueError("Unsupported algorithm: " + str(algo))
 
         return func(
             process_id=vm_id,
@@ -129,3 +140,10 @@ class Hypervisor:
             reference_string=reference_string,
             frames=vm["frames"]
         )
+        
+        
+    def list_vms(self):
+        """
+        Return a list of all VM dicts.
+        """
+        return list(self.vms.values())

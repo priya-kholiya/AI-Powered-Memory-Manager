@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Dashboard from "./components/dashboard/Dashboard";
@@ -8,42 +8,56 @@ import Login from "./components/dashboard/Login";
 import "./App.css";
 
 function App() {
-  const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("user")) || null
-  );
+  // Initialize user state from localStorage
+  const [user, setUser] = useState(null);
+
+  // Load user from localStorage on app mount
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  // Login handler
+  const handleLogin = (loggedInUser) => {
+    localStorage.setItem("user", JSON.stringify(loggedInUser));
+    setUser(loggedInUser);
+  };
+
+  // Logout handler
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+  };
 
   return (
     <BrowserRouter>
-
       <Routes>
-        {/* Login Route */}
+        {/* Login Page */}
         <Route
           path="/login"
-          element={
-            user ? <Navigate to="/" /> : <Login onLogin={setUser} />
-          }
+          element={user ? <Navigate to="/" /> : <Login onLogin={handleLogin} />}
         />
 
-        {/* Protected Dashboard */}
+        {/* Dashboard (protected) */}
         <Route
           path="/"
-          element={
-            user ? <Dashboard user={user} /> : <Navigate to="/login" />
-          }
+          element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/login" />}
         />
 
-        {/* Protected Algorithms Page */}
+        {/* Algorithms Page (protected) */}
         <Route
           path="/dashboard/algorithms"
-          element={
-            user ? <Algorithms /> : <Navigate to="/login" />
-          }
+          element={user ? <Algorithms user={user} /> : <Navigate to="/login" />}
         />
 
-        {/* If user goes to an unknown route */}
-        <Route path="*" element={<Navigate to="/" />} />
+        {/* Fallback for unknown routes */}
+        <Route
+          path="*"
+          element={user ? <Navigate to="/" /> : <Navigate to="/login" />}
+        />
       </Routes>
-
     </BrowserRouter>
   );
 }
