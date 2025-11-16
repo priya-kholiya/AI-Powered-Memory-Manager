@@ -5,10 +5,26 @@
     "algorithm": "FIFO",
     "frames": 10,
     "users": [
-      {"username": "admin", "password": "admin123", "role": "admin"},
-      {"username": "user1", "password": "userpass1", "role": "user"},
-      {"username": "user2", "password": "userpass2", "role": "user"},
-      {"username": "guest", "password": "guestpass", "role": "guest"}
+      {
+        "username": "admin",
+        "password_hash": "pbkdf2:sha256:260000$4LCT3GGUjl$79d4fdbcde5a1c13bc36a97fa8d421ca37863ed80d3ed7ad39ee65840778aec5",
+        "role": "admin"
+      },
+      {
+        "username": "user1",
+        "password_hash": "pbkdf2:sha256:260000$y5fkZxqZ1c$7dbd501700c8e7613be90b470de8bee81c5f8eaf0da8223790fb70d137e75ebf",
+        "role": "user"
+      },
+      {
+        "username": "user2",
+        "password_hash": "pbkdf2:sha256:260000$BlVbDkcsIa$7d8201dc5e099d263b7b494d63f6abf0f5051f139b63d594bb3c5e2511b8c12c",
+        "role": "user"
+      },
+      {
+        "username": "guest",
+        "password_hash": "pbkdf2:sha256:260000$V8PXVYpG1M$7e7df334b02dff220ec4691ee2c2c1ccac2a483042bbd8bb5f8e26d603b1d8af",
+        "role": "guest"
+      }
     ]
   },
   {
@@ -17,11 +33,26 @@
     "algorithm": "LRU",
     "frames": 8,
     "users": [
-      {"username": "kaliadmin", "password": "kalipass", "role": "admin"},
-      {"username": "kaliuser1", "password": "userpass1", "role": "user"},
-      {"username": "kaliuser2", "password": "userpass2", "role": "user"},
-      {"username": "kaliguest", "password": "guestpass", "role": "guest"}
+      {
+        "username": "kaliadmin",
+        "password_hash": "pbkdf2:sha256:260000$H1eC7gVPwP$d69afaf77c2bc50a0e8d8c52d11a5fbe5400f1a8d8f6ea4d10e8b1e5b500b7f7",
+        "role": "admin"
+      },
+      {
+        "username": "kaliuser1",
+        "password_hash": "pbkdf2:sha256:260000$0zE7tC4sH9$63c7288a6b1cf60f1fb4df6b9a8f6fa5127f4a505b38160613c6f5cf2fda6c6d",
+        "role": "user"
+      },
+      {
+        "username": "kaliuser2",
+        "password_hash": "pbkdf2:sha256:260000$tCqvfnstLY$7d1f79a1339b35527cf40ac248d90eea25b2b0cbb2ca1fbe873c67bdc14050c8",
+        "role": "user"
+      },
+      {
+        "username": "kaliguest",
+        "password_hash": "pbkdf2:sha256:260000$7zIhQYiHHD$f1b6af3a23db1bb6f7cf4806f01d47c2f3e8c70c47cd2981b61b811f0a9386d6",
+        "role": "guest"
+      }
     ]
   }
 ]
-

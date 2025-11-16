@@ -6,7 +6,10 @@ import json
 import subprocess
 from datetime import datetime
 from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
+import os
+from werkzeug.security import check_password_hash
+import bcrypt
 
 # Algorithms (your existing modules)
 from algorithms.fifo import fifo
@@ -22,31 +25,71 @@ logger = logging.getLogger("backend")
 
 # ---- Flask app ----
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*":{"origins": "*"}}, supports_credentials=True)
+
 
 # ---- Instantiate hypervisor ----
 hypervisor = Hypervisor(total_frames=100, db=None)
 
-# Try to load vm_users.json (optional)
-try:
-    with open("vm_users.json", "r") as f:
-        vm_defs = json.load(f)
-    for vm in vm_defs:
-        try:
-            hypervisor.create_vm(
-                vm_id=vm["vmId"],
-                os_name=vm.get("osName", "SimOS"),
-                algorithm=vm.get("algorithm", "FIFO"),
-                frames=int(vm.get("frames", 1)),
-                users=vm.get("users", []),
-            )
-            logger.info(f"Loaded VM from vm_users.json: {vm['vmId']}")
-        except Exception as e:
-            logger.warning(f"Skipping VM {vm.get('vmId')}: {e}")
-except FileNotFoundError:
-    logger.info("vm_users.json not found, continuing without it.")
-except Exception as e:
-    logger.exception("Error loading vm_users.json: %s", e)
+def load_vm_users():
+    json_path = os.path.join(os.path.dirname(__file__), "vm_users.json")
+
+    print("\n===== VM LOADER =====")
+    print("Looking for vm_users.json at:", json_path)
+
+    if not os.path.exists(json_path):
+        print("❌ vm_users.json NOT FOUND!")
+        return
+
+    try:
+        with open(json_path, "r") as f:
+            vm_defs = json.load(f)
+
+        if not isinstance(vm_defs, list):
+            print("❌ vm_users.json is NOT a list! Fix your JSON format.")
+            return
+
+        for vm in vm_defs:
+            try:
+                processed_users = []
+
+                for user in vm.get("users", []):
+                    # Accept either password OR password_hash
+                    if "password_hash" in user:
+                        hashed = user["password_hash"]
+                    elif "password" in user:
+                        # Auto-hash plain passwords
+                        from werkzeug.security import generate_password_hash
+                        hashed = generate_password_hash(user["password"])
+                    else:
+                        raise ValueError("User must contain 'password' or 'password_hash'")
+
+                    processed_users.append({
+                        "username": user["username"],
+                        "role": user.get("role", "user"),
+                        "password_hash": hashed
+                    })
+
+                created = hypervisor.create_vm(
+                    vm_id=vm["vmId"],
+                    os_name=vm.get("osName", "SimOS"),
+                    algorithm=vm.get("algorithm", "FIFO"),
+                    frames=int(vm.get("frames", 1)),
+                    users=processed_users,
+                )
+                print(f"✔ Loaded VM: {vm['vmId']} with {len(processed_users)} users")
+
+            except Exception as e:
+                print(f"⚠ Error loading VM {vm}: {e}")
+
+        print("===== LOADED VMs =====")
+        print(json.dumps(hypervisor.vms, indent=4))
+
+    except Exception as e:
+        print("❌ ERROR reading vm_users.json:", e)
+        return
+
+
 
 # ---- CPU history (rolling) ----
 cpu_history = [
@@ -141,6 +184,41 @@ def run_algorithm():
 
     return jsonify({"ok": True, "result": result})
 
+
+@app.route("/api/login", methods=["POST"])
+def login():
+    data = request.json or {}
+    username = data.get("username")
+    password = data.get("password")
+
+    if not username or not password:
+        return jsonify({"ok": False, "error": "Missing username or password"}), 400
+
+    found_vms = []
+    user_role = None
+
+    for vm_id, vm in hypervisor.vms.items():
+        for u in vm.get("users", []):
+            if u.get("username") == username:
+                stored_hash = u.get("password_hash")
+
+                if stored_hash:
+                    # Use Werkzeug PBKDF2 checker instead of bcrypt
+                    if check_password_hash(stored_hash, password):
+                        found_vms.append(vm_id)
+                        user_role = u.get("role", "user")
+
+    if not found_vms:
+        return jsonify({"ok": False, "error": "Invalid username or password"}), 401
+
+    return jsonify({
+        "ok": True,
+        "user": {
+            "username": username,
+            "role": user_role,
+            "vms": found_vms
+        }
+    })
 
 # ---- VM / Hypervisor management endpoints (re-using hypervisor object) ----
 @app.route("/api/vm/create", methods=["POST"])
