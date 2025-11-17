@@ -37,25 +37,25 @@ function App() {
         {/* Login Page */}
         <Route
           path="/login"
-          element={user ? <Navigate to="/" /> : <Login onLogin={handleLogin} />}
+          element={user ? <Navigate to="/" replace /> : <Login onLogin={handleLogin} />}
         />
 
         {/* Dashboard (protected) */}
         <Route
           path="/"
-          element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/login" />}
+          element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />}
         />
 
         {/* Algorithms Page (protected) */}
         <Route
           path="/dashboard/algorithms"
-          element={user ? <Algorithms user={user} /> : <Navigate to="/login" />}
+          element={user ? <Algorithms user={user} /> : <Navigate to="/login" replace />}
         />
 
-        {/* Fallback for unknown routes */}
+        {/* Catch-all route */}
         <Route
           path="*"
-          element={user ? <Navigate to="/" /> : <Navigate to="/login" />}
+          element={<Navigate to={user ? "/" : "/login"} replace />}
         />
       </Routes>
     </BrowserRouter>

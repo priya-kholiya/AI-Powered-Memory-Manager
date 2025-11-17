@@ -13,7 +13,7 @@
             {
                 "username": "user1",
                 "role": "user",
-                "password_hash": "pbkdf2:sha256:260000$7ctXAbTiEK$c5870312a692ad0b3f7b69ee329ef779e98d49d34a2014c88e0682f4b176eafe"
+                "password_hash": "pbkdf2:sha256:600000$qTNTZAoL3MzW9Dbb$ffbdf75a4517ba6998d3f13c37f1af796d7df771f9651a8d6e03a3f7acad2d50"
             },
             {
                 "username": "user2",
@@ -23,7 +23,7 @@
             {
                 "username": "guest",
                 "role": "guest",
-                "password_hash": "pbkdf2:sha256:260000$O98f2Dh8wV$67631cfa6cbd0f0dd744c503b8d7ebfc191ca43a7a4af09d30bba0fc812bc509"
+                "password_hash": "pbkdf2:sha256:600000$NhthJ88prP9uKn6k$593a11b72af36f69bb6e6233f9635dc899b7b908a6868432e18334691c017b87"
             }
         ]
     },

@@ -35,21 +35,15 @@ const MOCK_RESPONSE = {
 async function fetchVitals() {
   try {
     const res = await fetch("http://192.168.56.10:5000/api/vitals");
-
-
-    if (!res.ok) {
-      throw new Error("Backend error");
-    }
-
+    if (!res.ok) throw new Error("Backend error");
     return await res.json();
-
   } catch (err) {
     console.error("Vitals fetch failed:", err);
-    return MOCK_RESPONSE; // fallback so dashboard keeps working
+    return MOCK_RESPONSE; // fallback
   }
 }
 
-function Dashboard() {
+function Dashboard({ user, onLogout }) {
   const [data, setData] = useState(MOCK_RESPONSE);
   const [loading, setLoading] = useState(true);
 
@@ -73,7 +67,6 @@ function Dashboard() {
     };
   }, []);
 
-  // Avoid crash if backend returns unexpected structure
   const safeVmList = Array.isArray(data?.vmList) ? data.vmList : [];
 
   const osDistribution = useMemo(() => {
@@ -81,9 +74,7 @@ function Dashboard() {
       acc[vm.os] = (acc[vm.os] || 0) + 1;
       return acc;
     }, {});
-
     const total = safeVmList.length || 1;
-
     return Object.fromEntries(
       Object.entries(counts).map(([k, v]) => [k, Math.round((v / total) * 100)])
     );
@@ -104,6 +95,12 @@ function Dashboard() {
           </div>
         </div>
 
+        {/* User Info & Logout */}
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "1rem" }}>
+          <div>Logged in as: <strong>{user.username}</strong></div>
+          <button className={styles.logoutBtn} onClick={onLogout}>Logout</button>
+        </div>
+
         <div className={styles.footerNote}>
           Backend endpoint: <code>/api/vitals</code>
         </div>
@@ -119,12 +116,11 @@ function Dashboard() {
         />
         <StatCard title="Users Logged In" value={data.summary.totalUsers} />
         <StatCard
-        title="Page Algorithms"
-        value="Open"
-        unit=""
-        link={<Link to="/dashboard/algorithms">Go →</Link>}
-/>
-
+          title="Page Algorithms"
+          value="Open"
+          unit=""
+          link={<Link to="/dashboard/algorithms">Go →</Link>}
+        />
       </div>
 
       <div className={styles.panel}>
@@ -134,7 +130,6 @@ function Dashboard() {
             Showing {safeVmList.length} of {data.summary.totalVMs}
           </div>
         </div>
-
         {loading ? <div>Loading...</div> : <VMList vms={safeVmList} />}
       </div>
 
